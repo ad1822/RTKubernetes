@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: order-pg
+  namespace: order
+spec:
+  serviceName: "order-pg-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-pg
+  template:
+    metadata:
+      labels:
+        app: order-pg
+    spec:
+      containers:
+      - name: order-pg-container
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: order-pg-secret
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: order-pg-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: order-pg-secret
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: order-pg-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: order-pg-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
