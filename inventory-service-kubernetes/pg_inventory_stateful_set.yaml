@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: inventory-pg
+  namespace: inventory
+spec:
+  serviceName: "inventory-pg-service"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory-pg
+  template:
+    metadata:
+      labels:
+        app: inventory-pg
+    spec:
+      containers:
+      - name: inventory-pg-container
+        image: postgres:17
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: inventory-pg-secret
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: inventory-pg-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: inventory-pg-secret
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: inventory-pg-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: inventory-pg-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 2-inventory-service
+  namespace: inventory
+  labels:
+    app: 2-inventory-service
+spec:
+  selector:
+    matchLabels:
+      app: 2-inventory-service
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: 2-inventory-service
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: busybox
+        command: [ 'sh', '-c', 'until nc -z inventory-pg-service 5432; do echo waiting for db; sleep 2; done' ]
+      containers:
+      - name: 2-inventory-service
+        image: ayushdumasia/inventory-service:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: PORT
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secrets
+              key: PORT
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secrets
+              key: DB_HOST
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secrets
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secrets
+              key: DB_PASS
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secrets
+              key: DB_NAME
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secrets
+              key: DB_PORT
+        ports:
+        - containerPort: 3001
+          name: inventory-port
+      restartPolicy: Always
