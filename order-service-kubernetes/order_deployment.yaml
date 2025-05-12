@@ -22,8 +22,8 @@ spec:
     spec:
       initContainers:
       - name: wait-for-db
-        image: busybox
-        command: [ 'sh', '-c', 'until nc -z order-pg-service 5432; do echo waiting for db; sleep 2; done' ]
+        image: busybox:latest
+        command: [ 'sh', '-c', 'start=$(date +%s); until nc -z order-pg-service 5432; do echo waiting for db; sleep 2; done; end=$(date +%s); echo DB ready in $((end-start))s' ]
       containers:
       - name: order-container
         image: "ayushdumasia/order-service:latest"

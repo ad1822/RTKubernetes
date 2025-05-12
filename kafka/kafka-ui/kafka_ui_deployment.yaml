@@ -31,7 +31,6 @@ spec:
             configMapKeyRef:
               name: kafka-ui-configmap
               key: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
-        # Uncomment below if you want to specify Zookeeper as well
         # - name: KAFKA_CLUSTERS_0_ZOOKEEPER
         #   valueFrom:
         #     configMapKeyRef:
