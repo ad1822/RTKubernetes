@@ -1,62 +1,38 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  labels:
-    service: zookeeper
-  name: zookeeper
+  name: crs-zookeeper
   namespace: kafka
 spec:
-  serviceName: zookeeper
   replicas: 1
+  serviceName: zookeeper-cluster
   selector:
     matchLabels:
-      service: zookeeper
+      app: zookeeper-cluster
   template:
     metadata:
       labels:
-        network/kafka-network: "true"
-        service: zookeeper
+        app: zookeeper-cluster
     spec:
-      securityContext:
-        fsGroup: 1000
-      enableServiceLinks: false
       containers:
       - name: zookeeper
-        imagePullPolicy: Always
-        image: zookeeper
+        image: bitnami/zookeeper:latest
+        securityContext:
+          runAsUser: 0
         ports:
         - containerPort: 2181
+        - containerPort: 2888
+        - containerPort: 3888
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - sh
+              - -c
+              - >
+                echo $(( $(cat /etc/hosts | grep zookeeper | awk '{print($3)}' | awk '{split($0,array,"-")} END{print array[3]}') + 1 )) > /bitnami/zookeeper/data/myid
         env:
-        - name: ZOOKEEPER_CLIENT_PORT
-          value: "2181"
-        - name: ZOOKEEPER_DATA_DIR
-          value: "/var/lib/zookeeper/data"
-        - name: ZOOKEEPER_LOG_DIR
-          value: "/var/lib/zookeeper/log"
-        - name: ZOOKEEPER_SERVER_ID
-          value: "1"
-        resources: {}
-        volumeMounts:
-        - mountPath: /var/lib/zookeeper/data
-          name: zookeeper-data
-        - mountPath: /var/lib/zookeeper/log
-          name: zookeeper-log
-      hostname: zookeeper
-      restartPolicy: Always
-  volumeClaimTemplates:
-  - metadata:
-      name: zookeeper-data
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1024Mi
-  - metadata:
-      name: zookeeper-log
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1024Mi
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"
+        - name: ZOO_SERVERS
+          value: crs-zookeeper-0.zookeeper-cluster.kafka.svc.cluster.local:2888:3888
