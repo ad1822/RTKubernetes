@@ -5,7 +5,7 @@ metadata:
   namespace: payment
 spec:
   serviceName: "payment-pg-service"
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: payment-pg
