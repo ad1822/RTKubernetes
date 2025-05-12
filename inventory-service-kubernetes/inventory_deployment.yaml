@@ -65,6 +65,11 @@ spec:
             secretKeyRef:
               name: inventory-secrets
               key: DB_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: inventory-configmap
+              key: KAFKA_BOOTSTRAP_SERVERS
         ports:
         - containerPort: 3001
           name: inventory-port

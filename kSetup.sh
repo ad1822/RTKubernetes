@@ -9,7 +9,7 @@ if [[ "$action" == "create" ]]; then
     kubectl create ns inventory
     kubectl create ns payment
     
-    kubectl apply -f kafka_zookeeper.yaml -n kafka
+    kubectl apply -f kafka/ -n kafka
     kubectl apply -f order-service-kubernetes/ -n order
     kubectl apply -f inventory-service-kubernetes/ -n inventory
     kubectl apply -f payment-service-kubernetes/ -n payment
@@ -20,7 +20,7 @@ if [[ "$action" == "create" ]]; then
     kubectl delete -f payment-service-kubernetes/ -n payment
     kubectl delete -f inventory-service-kubernetes/ -n inventory
     kubectl delete -f order-service-kubernetes/ -n order
-    kubectl delete -f kafka_zookeeper.yaml -n kafka
+    kubectl delete -f kafka/ -n kafka
     
     kubectl delete ns payment
     kubectl delete ns inventory
