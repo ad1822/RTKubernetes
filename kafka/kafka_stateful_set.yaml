@@ -16,7 +16,7 @@ spec:
     spec:
       hostname: kafka
       containers:
-      - name: kafka
+      - name: kafka-container
         image: bitnami/kafka:2.6.0
         securityContext:
           runAsUser: 0
