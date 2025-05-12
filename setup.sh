@@ -2,4 +2,8 @@
 
 echo "===> Making Files"
 
-touch $1_{deployment,service,config_map,secrets,volumes,namespace}.yaml
+touch $1_{deployment,service,secrets,namespace}.yaml
+
+touch pg_$1_{pvc,secrets,service,stateful_set}.yaml
+
+echo "===> DONE !!!!"
