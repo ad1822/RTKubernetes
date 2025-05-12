@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-pg-service
+  namespace: payment
+spec:
+  clusterIP: None
+  selector:
+    app: payment-pg
+  ports:
+  - port: 5432
+    name: postgres

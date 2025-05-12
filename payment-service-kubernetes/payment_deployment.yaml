@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 3-payment-service
+  namespace: payment
+  labels:
+    app: 3-payment-service
+spec:
+  selector:
+    matchLabels:
+      app: 3-payment-service
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: 3-payment-service
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: busybox
+        command: [ 'sh', '-c', 'until nc -z payment-pg-service 5432; do echo waiting for db; sleep 2; done' ]
+      containers:
+      - name: payment-container
+        image: "ayushdumasia/payment-service:latest"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: PORT
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: PORT
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: DB_HOST
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: DB_PASS
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: DB_NAME
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: DB_PORT
+        ports:
+        - containerPort: 3002
+          name: payment-port
+      restartPolicy: Always
