@@ -9,6 +9,7 @@ This project contains a fully containerized, Kubernetes-based **Order Processing
 ## Kubernetes Diagram
 
 ![Diagram](diagram.png)
+![Kubernetes-Diagram](kubernetes-diagram.png)
 
 <!-- ![Diagram](diagram-trans.png) -->
 
